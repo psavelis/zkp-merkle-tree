@@ -1,0 +1,56 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  go-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        go-version: ["1.24", "1.25"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+      - name: Format check
+        run: test -z "$(gofmt -l .)"
+      - name: Tidy check
+        run: go mod tidy && git diff --exit-code
+      - name: Vet
+        run: go vet ./...
+      - name: Test with coverage
+        run: go test -coverprofile=coverage.out ./...
+      - name: CLI smoke
+        run: go run ./cmd/zkp-merkle-demo verify --hash sha256 --proof-file ./testdata/sample-proof.json
+      - name: Example smoke
+        run: |
+          go run ./examples/bitcoin-p2mr
+          go run ./examples/zk-rollup
+          go run ./examples/light-client-spv
+          go run ./examples/bridge-exit
+      - name: Training summary
+        run: |
+          total_cover=$(go tool cover -func=coverage.out | awk '/^total:/ {print $3}')
+          {
+            echo '## Training CI Report'
+            echo
+            echo "- Go version: ${{ matrix.go-version }}"
+            echo "- Coverage: ${total_cover}"
+            echo '- Verified flows:'
+            echo '  - Generic Merkle proof verification'
+            echo '  - Bitcoin-style selective reveal example'
+            echo '  - ZK balance update with Merkle membership'
+            echo '  - Light-client SPV inclusion example'
+            echo '  - Bridge exit inclusion example'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.go-version }}
+          path: coverage.out
