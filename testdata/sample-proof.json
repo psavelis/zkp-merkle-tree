@@ -1,0 +1,16 @@
+{
+  "hash_name": "sha256",
+  "leaf": "bob",
+  "leaf_digest": "680e7793d646bb7dfa049f6dd432ee3cb38655faa80be01384454efa4bbbb1eb",
+  "leaf_index": 1,
+  "root": "8a3c974d2d34a5978517c5cbae02dfa57f8aa70588b37007779a9f70a836a889",
+  "siblings": [
+    "1255dacaa637f70cb606763d3035c7ef6b52eb2983c5cd906f714c3818d0dfaa",
+    "c742b19a36ce82f1a9cf076da9ccf750a597d692ea5ca31a7b84237c61970107"
+  ],
+  "directions": [
+    "left",
+    "right"
+  ],
+  "depth": 2
+}
